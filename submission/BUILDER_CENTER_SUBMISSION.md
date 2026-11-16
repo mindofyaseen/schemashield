@@ -10,7 +10,7 @@
 **Category:** Serverless / Data Reliability / Architecture  
 **Live Demo Application:** [https://d39kvugurv6zcx.cloudfront.net](https://d39kvugurv6zcx.cloudfront.net)  
 **Live Serverless API Gateway:** [https://3r48tr3ynb.execute-api.us-east-1.amazonaws.com/prod/api](https://3r48tr3ynb.execute-api.us-east-1.amazonaws.com/prod/api)  
-**Demo Video:** [https://streamable.com/kc0b2k](https://streamable.com/kc0b2k)  
+**Demo Video:** [https://www.youtube.com/watch?v=yOultjETZdY](https://www.youtube.com/watch?v=yOultjETZdY)  
 **GitHub Repository:** [https://github.com/mindofyaseen/schemashield](https://github.com/mindofyaseen/schemashield)
 
 ---
