@@ -24,7 +24,10 @@ export const api = {
       const res = await fetch(`${API_BASE}/contracts`);
       if (res.ok) {
         const data = await res.json();
-        return data.contracts || [];
+        if (data.contracts && data.contracts.length > 0) {
+          localContracts = data.contracts;
+          return data.contracts;
+        }
       }
     } catch (e) {
       console.warn('API error, using local state:', e);
@@ -50,7 +53,10 @@ export const api = {
       const res = await fetch(`${API_BASE}/contracts/${contractId}/consumers`);
       if (res.ok) {
         const data = await res.json();
-        return data.consumers || [];
+        if (data.consumers) {
+          localConsumers[contractId] = data.consumers;
+          return data.consumers;
+        }
       }
     } catch (e) {
       console.warn('API error, using local state:', e);
@@ -64,20 +70,6 @@ export const api = {
     baseline_schema: any;
     sample_breaking_schema: any;
   }> {
-    try {
-      const res = await fetch(`${API_BASE}/demo/seed`, { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        return data;
-      }
-    } catch (e) {
-      console.warn('API error, using client simulation for seed:', e);
-    }
-
-    // Client-side fallback seed
-    const contractId = 'contract-order-events';
-    const now = new Date().toISOString();
-
     const baselineSchema = {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
       type: 'object',
@@ -108,6 +100,20 @@ export const api = {
       required: ['order_id', 'buyer_id', 'total', 'currency', 'created_at', 'customer_email'],
       additionalProperties: false
     };
+
+    try {
+      const res = await fetch(`${API_BASE}/demo/seed`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        return data;
+      }
+    } catch (e) {
+      console.warn('API error, using client simulation for seed:', e);
+    }
+
+    // Client-side fallback seed
+    const contractId = 'contract-order-events';
+    const now = new Date().toISOString();
 
     localContracts = [
       {
@@ -213,7 +219,7 @@ export const api = {
       status: 'COMPLETED',
       created_at: now,
       completed_at: now,
-      risk_score: isBreakingDemo ? 85 : 10,
+      risk_score: isBreakingDemo ? 100 : 10,
       risk_level: isBreakingDemo ? 'CRITICAL RISK' : 'LOW RISK',
       release_verdict: isBreakingDemo ? 'BLOCK RELEASE' : 'SAFE TO RELEASE',
       summary_explanation: isBreakingDemo
@@ -399,6 +405,33 @@ export const api = {
     return { analysis_id: analysisId, status: 'COMPLETED' };
   },
 
+  async pollReport(analysisId: string, maxAttempts = 15): Promise<AnalysisReport | null> {
+    for (let i = 0; i < maxAttempts; i++) {
+      try {
+        const checkRes = await fetch(`${API_BASE}/analyses/${analysisId}`);
+        if (checkRes.ok) {
+          const recData = await checkRes.json();
+          const status = recData.analysis?.status;
+          if (status === 'COMPLETED') {
+            const repRes = await fetch(`${API_BASE}/analyses/${analysisId}/report`);
+            if (repRes.ok) {
+              const repData = await repRes.json();
+              return repData.report;
+            }
+          } else if (status === 'FAILED') {
+            console.error('Analysis execution failed on AWS Step Functions');
+            break;
+          }
+        }
+      } catch (e) {
+        console.warn('Polling error:', e);
+      }
+      // Wait 1.5 seconds between polling attempts
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+    return localReports[analysisId] || null;
+  },
+
   async getAnalysis(id: string): Promise<AnalysisRecord | null> {
     try {
       const res = await fetch(`${API_BASE}/analyses/${id}`);
@@ -413,16 +446,8 @@ export const api = {
   },
 
   async getReport(analysisId: string): Promise<AnalysisReport | null> {
-    try {
-      const res = await fetch(`${API_BASE}/analyses/${analysisId}/report`);
-      if (res.ok) {
-        const data = await res.json();
-        return data.report;
-      }
-    } catch (e) {
-      console.warn('API error, using local state:', e);
-    }
-    return localReports[analysisId] || null;
+    // Uses polling to wait for Step Functions if still running
+    return await this.pollReport(analysisId);
   },
 
   async listAnalyses(): Promise<AnalysisRecord[]> {

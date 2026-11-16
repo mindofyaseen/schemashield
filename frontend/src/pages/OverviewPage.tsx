@@ -9,7 +9,11 @@ import {
   Sparkles,
   ShieldCheck,
   ShieldAlert,
-  Clock
+  Clock,
+  PlayCircle,
+  HelpCircle,
+  TrendingUp,
+  AlertTriangle
 } from 'lucide-react';
 
 interface OverviewPageProps {
@@ -37,30 +41,59 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
 
   return (
     <div className="space-y-8">
-      {/* Hero / Quick Start Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 rounded-2xl p-7 text-white shadow-xl border border-slate-700/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div className="max-w-2xl">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            <span>Serverless Data Contract Firewall</span>
+      {/* Executive / Business Problem & Solution Hero Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-8 text-white shadow-2xl border border-indigo-500/20 relative overflow-hidden">
+        <div className="absolute right-0 top-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="max-w-3xl relative z-10">
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold mb-4">
+            <Sparkles className="w-4 h-4 text-blue-400" />
+            <span>AWS Builder Center Challenge — No Pipeline, No Problem</span>
           </div>
-          <h2 className="text-2xl font-extrabold tracking-tight mb-2">
-            Catch breaking data contracts before they break production.
-          </h2>
-          <p className="text-slate-300 text-sm leading-relaxed">
-            SchemaShield analyzes proposed producer schema changes, discovers backward incompatibilities,
-            evaluates downstream consumer contracts in parallel with AWS Step Functions, and renders real-time blast-radius topology.
+
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight mb-3">
+            Catch breaking data contracts <br className="hidden sm:inline" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300">
+              before they break production.
+            </span>
+          </h1>
+
+          <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 font-normal">
+            When upstream teams change API/data schemas without downstream visibility, billing and analytics pipelines silently crash in production.
+            <strong> SchemaShield acts as an automated serverless firewall</strong>, orchestrating parallel contract checks in AWS Step Functions to protect enterprise revenue and reliability.
           </p>
+
+          {/* 1-Click Guided Demo Button */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <button
+              onClick={onQuickDemo}
+              disabled={isDemoLoading}
+              className="flex items-center justify-center space-x-2.5 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-sm px-7 py-3.5 rounded-2xl shadow-xl shadow-blue-500/30 transition transform hover:-translate-y-0.5 disabled:opacity-50"
+            >
+              <PlayCircle className="w-5 h-5 fill-current" />
+              <span>{isDemoLoading ? 'Running AWS Step Functions...' : '🚀 Run 1-Click Guided Demo'}</span>
+            </button>
+
+            <span className="text-xs text-slate-400 flex items-center space-x-1.5 justify-center sm:justify-start">
+              <span>Simulates breaking schema drift across 3 real consumers</span>
+            </span>
+          </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          <button
-            onClick={onQuickDemo}
-            disabled={isDemoLoading}
-            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold px-5 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition text-sm disabled:opacity-50"
-          >
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>{isDemoLoading ? 'Loading Demo...' : 'Load Interactive Demo'}</span>
-          </button>
+
+        {/* Business Story Card */}
+        <div className="mt-8 pt-6 border-t border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-300">
+          <div className="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/60">
+            <span className="text-blue-400 font-bold block mb-1">1. The Drift</span>
+            <span>Developer modifies order schema (`customer_id` renamed, `total` converted to string).</span>
+          </div>
+          <div className="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/60">
+            <span className="text-amber-400 font-bold block mb-1">2. Parallel Evaluation</span>
+            <span>AWS Step Functions validates Billing, Analytics & Notification services in parallel.</span>
+          </div>
+          <div className="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/60">
+            <span className="text-emerald-400 font-bold block mb-1">3. Autonomous Verdict</span>
+            <span>Release safely BLOCKED; isolates broken systems while keeping intact systems green.</span>
+          </div>
         </div>
       </div>
 
@@ -101,7 +134,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
             <AlertOctagon className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Breaking Releases Blocked</p>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Downtimes Blocked</p>
             <h3 className="text-2xl font-bold text-rose-600 mt-0.5">{breakingAnalyses}</h3>
           </div>
         </div>
@@ -133,7 +166,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 onClick={onQuickDemo}
                 className="mt-3 text-xs font-bold text-blue-600 hover:underline"
               >
-                Click here to seed demo contract
+                Click here to run 1-click guided demo
               </button>
             </div>
           ) : (
@@ -190,7 +223,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               <Clock className="w-10 h-10 mx-auto mb-2 text-slate-300" />
               <p className="text-sm font-medium">No analysis executions yet.</p>
               <p className="text-xs text-slate-400 mt-1">
-                Run an analysis or load the demo to see Step Functions execution results.
+                Click "Run 1-Click Guided Demo" above to start the first live execution.
               </p>
             </div>
           ) : (
