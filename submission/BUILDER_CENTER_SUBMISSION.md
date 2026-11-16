@@ -8,6 +8,8 @@
 **Tagline:** Catch breaking data contracts before they break production.  
 **Author:** Muhammad Yaseen ([mindofyaseen](https://github.com/mindofyaseen))  
 **Category:** Serverless / Data Reliability / Architecture  
+**Live Demo Application:** [https://d39kvugurv6zcx.cloudfront.net](https://d39kvugurv6zcx.cloudfront.net)  
+**Live Serverless API Gateway:** [https://3r48tr3ynb.execute-api.us-east-1.amazonaws.com/prod/api](https://3r48tr3ynb.execute-api.us-east-1.amazonaws.com/prod/api)  
 **Demo Video:** [Link to 3-Minute Demonstration Video](https://youtu.be/placeholder-demo-schemashield)  
 **GitHub Repository:** [https://github.com/mindofyaseen/schemashield](https://github.com/mindofyaseen/schemashield)
 
@@ -33,8 +35,12 @@ When an upstream developer renames `customer_id` to `buyer_id` or turns `total` 
 2. **Downstream Consumer Registry:** Downstream services register their expected JSON Schema contracts against the producer.
 3. **Deterministic Comparison Engine (Python):** Enforces JSON Schema Draft 2020-12 rules to discover removed properties, incompatible type mutations, enum narrowings, and violated guarantees—without LLM hallucinations.
 4. **Parallel Consumer Blast-Radius Analysis:** Orchestrated via AWS Step Functions Map state, checking each downstream consumer simultaneously in isolated Lambda functions.
-5. **Interactive Downstream Topology Graph:** Visualizes exactly which downstream systems break (e.g., Billing and Analytics) and which remain unaffected (e.g., Customer Notification Service).
-6. **Actionable Migration Guidance:** Provides concrete fixes (e.g., backward-compatible field aliases and numeric preservation) before release.
+5. **3D Holographic Blast Radius & Serverless Topology:** Real-time interactive WebGL 3D firewall core visualizing cloud packet blockage and consumer impact in real time.
+6. **Verification Studio (Upload Lab):** Allows engineers and business judges to upload custom JSON schemas manually or use presets, with an instant Before/After Visual Matrix.
+7. **Pre-Merge Firewall Gate & CLI Simulator:** Emulates local CLI runs and GitHub Actions blockers preventing broken PR merges before deployment.
+8. **Automated Migration Shims Generator:** Auto-generates backward-compatible adapter code in SQL/dbt, PySpark, TypeScript, and AWS Glue ETL scripts.
+9. **Downtime ROI & Incident Cost Calculator:** Interactive financial calculator measuring revenue loss prevented and engineering hours saved.
+10. **Actionable Migration Guidance:** Provides concrete fixes (e.g., backward-compatible field aliases and numeric preservation) before release.
 
 ---
 
