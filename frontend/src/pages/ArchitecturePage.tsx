@@ -7,7 +7,7 @@ export const ArchitecturePage: React.FC = () => {
       <div className="pb-4 border-b border-slate-200">
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">AWS Serverless Architecture</h2>
         <p className="text-xs text-slate-500 mt-0.5">
-          Weekend Challenge: No Pipeline, No Problem — Production-grade Serverless Contract Firewall
+          Production-grade Serverless Contract Firewall & Zero-Drift Blast Radius Architecture
         </p>
       </div>
 
@@ -138,13 +138,13 @@ export const ArchitecturePage: React.FC = () => {
         </div>
       </div>
 
-      {/* No Pipeline, No Problem Philosophy */}
+      {/* Zero Pipeline Overhead Philosophy */}
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
         <h4 className="font-bold text-slate-900 text-sm mb-2">
-          Challenge Theme: "No Pipeline, No Problem"
+          Autonomous Zero-Overhead Deployment Philosophy
         </h4>
         <p className="text-xs text-slate-600 leading-relaxed">
-          SchemaShield was designed specifically to be deployed without maintaining complex CI/CD infrastructure, runner clusters, or third-party workflow agents.
+          SchemaShield was designed specifically to operate without maintaining complex CI/CD infrastructure, runner clusters, or third-party workflow agents.
           Using standard AWS Serverless Application Model (SAM) and CloudFormation, the entire architecture (Lambda, S3, DynamoDB, Step Functions, API Gateway, CloudFront)
           builds and deploys reproducibly with a single command: <code className="bg-white px-2 py-0.5 rounded border border-slate-300 font-mono text-[11px]">./scripts/deploy.sh</code>.
         </p>

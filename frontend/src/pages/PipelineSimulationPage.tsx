@@ -51,7 +51,7 @@ export const PipelineSimulationPage: React.FC = () => {
   };
 
   const pipelineYaml = `# .github/workflows/data-contract-firewall.yml
-# Weekend Challenge: No Pipeline, No Problem
+# SchemaShield Enterprise Pre-Merge Contract Verification Gate
 name: SchemaShield Pre-Merge Gate
 
 on:

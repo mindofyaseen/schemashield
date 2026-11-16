@@ -77,15 +77,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Challenge Demo Banner */}
+      {/* Enterprise Live Drift Simulator */}
       <div className="p-4 border-t border-slate-800 bg-slate-950/60">
         <div className="p-3.5 rounded-2xl bg-gradient-to-br from-indigo-950 to-slate-900 border border-indigo-500/30 text-xs">
           <div className="flex items-center space-x-2 text-indigo-300 font-bold mb-1">
             <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>AWS Weekend Challenge</span>
+            <span>Live Firewall Simulation</span>
           </div>
           <p className="text-slate-400 mb-3 text-[11px] leading-relaxed">
-            "No Pipeline, No Problem" instant serverless data contract validation demo.
+            Test upstream schema drift against live downstream contracts via AWS Step Functions.
           </p>
           <button
             onClick={onQuickDemo}
@@ -93,7 +93,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-2.5 px-3 rounded-xl shadow-md transition disabled:opacity-50 text-xs"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>{isDemoLoading ? 'Running Demo...' : '🚀 1-Click Guided Demo'}</span>
+            <span>{isDemoLoading ? 'Running Simulation...' : '🚀 Run Drift Simulation'}</span>
           </button>
         </div>
       </div>

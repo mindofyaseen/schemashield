@@ -54,7 +54,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           <div className="lg:col-span-7">
             <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold mb-4">
               <Sparkles className="w-4 h-4 text-blue-400" />
-              <span>AWS Builder Center Challenge — No Pipeline, No Problem</span>
+              <span>Enterprise Data Reliability & Automated Contract Boundary</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight mb-4">
