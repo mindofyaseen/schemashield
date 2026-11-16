@@ -24,6 +24,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         return 'Schema Verification Studio (Upload & Test)';
       case 'pipeline':
         return 'CI/CD & CLI Simulator (Pre-Merge Firewall)';
+      case 'topology3d':
+        return '3D Holographic Blast Radius & Serverless Topology';
+      case 'migrations':
+        return 'Automated Migration Shims Generator (SQL / PySpark / Glue)';
+      case 'roi':
+        return 'Downtime ROI & Incident Cost Calculator';
       case 'contracts':
         return 'Data Contract Registry';
       case 'consumers':

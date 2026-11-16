@@ -4,6 +4,9 @@ import { Navbar } from './components/Navbar';
 import { OverviewPage } from './pages/OverviewPage';
 import { StudioPage } from './pages/StudioPage';
 import { PipelineSimulationPage } from './pages/PipelineSimulationPage';
+import { Topology3DPage } from './pages/Topology3DPage';
+import { MigrationGeneratorPage } from './pages/MigrationGeneratorPage';
+import { RoiCalculatorPage } from './pages/RoiCalculatorPage';
 import { ContractsPage } from './pages/ContractsPage';
 import { ContractDetailPage } from './pages/ContractDetailPage';
 import { AnalysisPage } from './pages/AnalysisPage';
@@ -198,6 +201,21 @@ export const App: React.FC = () => {
 
           {currentTab === 'pipeline' && (
             <PipelineSimulationPage />
+          )}
+
+          {currentTab === 'topology3d' && (
+            <Topology3DPage
+              onQuickDemo={handleInstantGuidedDemo}
+              isDemoLoading={isAnalyzing || isDemoLoading}
+            />
+          )}
+
+          {currentTab === 'migrations' && (
+            <MigrationGeneratorPage />
+          )}
+
+          {currentTab === 'roi' && (
+            <RoiCalculatorPage />
           )}
 
           {currentTab === 'contracts' && (
