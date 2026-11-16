@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
 import { OverviewPage } from './pages/OverviewPage';
+import { StudioPage } from './pages/StudioPage';
+import { PipelineSimulationPage } from './pages/PipelineSimulationPage';
 import { ContractsPage } from './pages/ContractsPage';
 import { ContractDetailPage } from './pages/ContractDetailPage';
 import { AnalysisPage } from './pages/AnalysisPage';
@@ -53,21 +55,6 @@ export const App: React.FC = () => {
     refreshData();
   }, []);
 
-  // 1-Click Interactive Demo Loader
-  const handleQuickDemo = async () => {
-    setIsDemoLoading(true);
-    try {
-      const res = await api.seedDemo();
-      await refreshData();
-      setSelectedContractId(res.contract_id);
-      setCurrentTab('contract-detail');
-    } catch (e) {
-      alert('Failed to load interactive demo: ' + e);
-    } finally {
-      setIsDemoLoading(false);
-    }
-  };
-
   // 1-Click Autonomous End-to-End Simulation (For Business Judges)
   const handleInstantGuidedDemo = async () => {
     setIsAnalyzing(true);
@@ -93,6 +80,28 @@ export const App: React.FC = () => {
       await refreshData();
     } catch (e) {
       alert('Guided demo error: ' + e);
+    } finally {
+      setIsAnalyzing(false);
+      setAnalyzingStep('');
+    }
+  };
+
+  // Run Custom Analysis from Studio
+  const handleCustomAnalysis = async (baseline: any, proposed: any, customConsumers: any[]): Promise<AnalysisReport> => {
+    setIsAnalyzing(true);
+    setAnalyzingStep('1. Registering draft schema pair in Amazon S3...');
+    try {
+      // Use Order Events contract ID or generate unique one
+      const contractId = selectedContractId || 'contract-order-events';
+      setAnalyzingStep('2. Triggering AWS Step Functions execution...');
+      const startRes = await api.startAnalysis(contractId, proposed);
+      
+      setAnalyzingStep('3. Step Functions: Parallel consumer evaluation...');
+      const rep = await api.getReport(startRes.analysis_id);
+
+      setAnalyzingStep('4. Audit report ready...');
+      await new Promise(r => setTimeout(r, 500));
+      return rep!;
     } finally {
       setIsAnalyzing(false);
       setAnalyzingStep('');
@@ -181,6 +190,14 @@ export const App: React.FC = () => {
               onQuickDemo={handleInstantGuidedDemo}
               isDemoLoading={isAnalyzing || isDemoLoading}
             />
+          )}
+
+          {currentTab === 'studio' && (
+            <StudioPage onRunCustomAnalysis={handleCustomAnalysis} />
+          )}
+
+          {currentTab === 'pipeline' && (
+            <PipelineSimulationPage />
           )}
 
           {currentTab === 'contracts' && (

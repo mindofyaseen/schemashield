@@ -19,7 +19,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   const getTitle = () => {
     switch (currentTab) {
       case 'overview':
-        return 'Reliability Dashboard';
+        return 'Enterprise Data Reliability Hub';
+      case 'studio':
+        return 'Schema Verification Studio (Upload & Test)';
+      case 'pipeline':
+        return 'CI/CD & CLI Simulator (Pre-Merge Firewall)';
       case 'contracts':
         return 'Data Contract Registry';
       case 'consumers':
@@ -29,9 +33,9 @@ export const Navbar: React.FC<NavbarProps> = ({
       case 'architecture':
         return 'AWS Serverless Architecture';
       case 'settings':
-        return 'Settings & Health Checks';
+        return 'System & Health Checks';
       case 'analysis':
-        return 'Contract Analysis & Blast Radius';
+        return 'Contract Analysis & Blast Radius Topology';
       default:
         return 'SchemaShield';
     }
@@ -45,34 +49,25 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       <div className="flex items-center space-x-4">
         {/* Environment Badge */}
-        <div className="hidden md:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-medium text-slate-600">
+        <div className="hidden md:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
           <Cloud className="w-3.5 h-3.5 text-blue-500" />
           <span>AWS us-east-1</span>
         </div>
 
         {/* API Status */}
-        <div className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700">
+        <div className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-          <span>{apiConnected ? 'API Connected' : 'Local Mode'}</span>
+          <span>{apiConnected ? 'AWS Connected' : 'Local Mode'}</span>
         </div>
 
         {/* Demo Button */}
         <button
           onClick={onQuickDemo}
           disabled={isDemoLoading}
-          className="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-sm transition disabled:opacity-50"
+          className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition disabled:opacity-50"
         >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>{isDemoLoading ? 'Seeding...' : 'Load Interactive Demo'}</span>
-        </button>
-
-        {/* Run Analysis Action */}
-        <button
-          onClick={onRunAnalysis}
-          className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm shadow-blue-600/20 transition"
-        >
-          <Play className="w-3.5 h-3.5 fill-current" />
-          <span>Run Analysis</span>
+          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <span>{isDemoLoading ? 'Running Demo...' : '🚀 1-Click Guided Demo'}</span>
         </button>
       </div>
     </header>
