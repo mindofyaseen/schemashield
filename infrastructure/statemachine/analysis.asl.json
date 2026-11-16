@@ -1,0 +1,122 @@
+{
+  "Comment": "SchemaShield Serverless Data Contract Firewall Analysis State Machine",
+  "StartAt": "LoadAnalysisContext",
+  "States": {
+    "LoadAnalysisContext": {
+      "Type": "Task",
+      "Resource": "${LoadContextFunctionArn}",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "MarkFailed"
+        }
+      ],
+      "Next": "CompareSchemas"
+    },
+    "CompareSchemas": {
+      "Type": "Task",
+      "Resource": "${CompareSchemasFunctionArn}",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "MarkFailed"
+        }
+      ],
+      "Next": "FetchConsumers"
+    },
+    "FetchConsumers": {
+      "Type": "Task",
+      "Resource": "${FetchConsumersFunctionArn}",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "MarkFailed"
+        }
+      ],
+      "Next": "AnalyzeConsumers"
+    },
+    "AnalyzeConsumers": {
+      "Type": "Map",
+      "ItemsPath": "$.consumers",
+      "MaxConcurrency": 5,
+      "Parameters": {
+        "consumer.$": "$$.Map.Item.Value",
+        "proposed_schema.$": "$.proposed_schema"
+      },
+      "Iterator": {
+        "StartAt": "AnalyzeSingleConsumer",
+        "States": {
+          "AnalyzeSingleConsumer": {
+            "Type": "Task",
+            "Resource": "${AnalyzeConsumerFunctionArn}",
+            "End": true
+          }
+        }
+      },
+      "ResultPath": "$.consumer_results",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "MarkFailed"
+        }
+      ],
+      "Next": "AggregateResults"
+    },
+    "AggregateResults": {
+      "Type": "Task",
+      "Resource": "${AggregateResultsFunctionArn}",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "MarkFailed"
+        }
+      ],
+      "Next": "AnalysisComplete"
+    },
+    "AnalysisComplete": {
+      "Type": "Succeed"
+    },
+    "MarkFailed": {
+      "Type": "Task",
+      "Resource": "${MarkFailedFunctionArn}",
+      "End": true
+    }
+  }
+}

@@ -1,0 +1,336 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SchemaShield - The Serverless Data Contract Firewall
+  Weekend Challenge: No Pipeline, No Problem (AWS Builder Center)
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Runtime: python3.12
+    Architectures:
+      - x86_64
+    Tracing: Active
+    Environment:
+      Variables:
+        CONTRACTS_TABLE: !Ref ContractsTable
+        CONSUMERS_TABLE: !Ref ConsumersTable
+        ANALYSES_TABLE: !Ref AnalysesTable
+        STORAGE_BUCKET: !Ref StorageBucket
+
+Resources:
+  # ==========================================
+  # S3 STORAGE
+  # ==========================================
+  StorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "schemashield-storage-${AWS::AccountId}-${AWS::Region}"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "schemashield-frontend-${AWS::AccountId}-${AWS::Region}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  FrontendOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "SchemaShield-Frontend-OAC-${AWS::StackName}"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  FrontendDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        Origins:
+          - Id: FrontendS3Origin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt FrontendOAC.Id
+            S3OriginConfig: {}
+        DefaultCacheBehavior:
+          TargetOriginId: FrontendS3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD]
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontServicePrincipal
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${FrontendBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${FrontendDistribution}"
+
+  # ==========================================
+  # DYNAMODB TABLES (On-Demand / Pay-Per-Request)
+  # ==========================================
+  ContractsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "schemashield-contracts-${AWS::StackName}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: contractId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: contractId
+          KeyType: HASH
+
+  ConsumersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "schemashield-consumers-${AWS::StackName}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: contractId
+          AttributeType: S
+        - AttributeName: consumerId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: contractId
+          KeyType: HASH
+        - AttributeName: consumerId
+          KeyType: RANGE
+
+  AnalysesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "schemashield-analyses-${AWS::StackName}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: analysisId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: analysisId
+          KeyType: HASH
+
+  # ==========================================
+  # SHARED LAMBDA LAYER
+  # ==========================================
+  CoreEngineLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "schemashield-core-engine-${AWS::StackName}"
+      Description: Core schema comparator, validator, compatibility, and risk engines
+      ContentUri: ../backend/layers/core_layer
+      CompatibleRuntimes:
+        - python3.12
+    Metadata:
+      BuildMethod: python3.12
+
+  # ==========================================
+  # STEP FUNCTIONS LAMBDA WORKERS
+  # ==========================================
+  LoadContextFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/functions/load_context/
+      Handler: app.lambda_handler
+      Layers:
+        - !Ref CoreEngineLayer
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ContractsTable
+        - S3ReadPolicy:
+            BucketName: !Ref StorageBucket
+
+  CompareSchemasFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/functions/compare_schemas/
+      Handler: app.lambda_handler
+      Layers:
+        - !Ref CoreEngineLayer
+
+  FetchConsumersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/functions/fetch_consumers/
+      Handler: app.lambda_handler
+      Layers:
+        - !Ref CoreEngineLayer
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ConsumersTable
+        - S3ReadPolicy:
+            BucketName: !Ref StorageBucket
+
+  AnalyzeConsumerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/functions/analyze_consumer/
+      Handler: app.lambda_handler
+      Layers:
+        - !Ref CoreEngineLayer
+
+  AggregateResultsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/functions/aggregate_results/
+      Handler: app.lambda_handler
+      Layers:
+        - !Ref CoreEngineLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AnalysesTable
+        - S3CrudPolicy:
+            BucketName: !Ref StorageBucket
+
+  MarkFailedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/functions/mark_failed/
+      Handler: app.lambda_handler
+      Layers:
+        - !Ref CoreEngineLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AnalysesTable
+
+  # ==========================================
+  # STEP FUNCTIONS STATE MACHINE
+  # ==========================================
+  AnalysisStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub "schemashield-analysis-machine-${AWS::StackName}"
+      DefinitionUri: statemachine/analysis.asl.json
+      DefinitionSubstitutions:
+        LoadContextFunctionArn: !GetAtt LoadContextFunction.Arn
+        CompareSchemasFunctionArn: !GetAtt CompareSchemasFunction.Arn
+        FetchConsumersFunctionArn: !GetAtt FetchConsumersFunction.Arn
+        AnalyzeConsumerFunctionArn: !GetAtt AnalyzeConsumerFunction.Arn
+        AggregateResultsFunctionArn: !GetAtt AggregateResultsFunction.Arn
+        MarkFailedFunctionArn: !GetAtt MarkFailedFunction.Arn
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref LoadContextFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref CompareSchemasFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref FetchConsumersFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref AnalyzeConsumerFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref AggregateResultsFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref MarkFailedFunction
+
+  # ==========================================
+  # API GATEWAY & API LAMBDA
+  # ==========================================
+  SchemaShieldApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/functions/api/
+      Handler: app.lambda_handler
+      Layers:
+        - !Ref CoreEngineLayer
+      Environment:
+        Variables:
+          STATE_MACHINE_ARN: !Ref AnalysisStateMachine
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ContractsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ConsumersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AnalysesTable
+        - S3CrudPolicy:
+            BucketName: !Ref StorageBucket
+        - StepFunctionsExecutionPolicy:
+            StateMachineName: !GetAtt AnalysisStateMachine.Name
+      Events:
+        ApiProxy:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SchemaShieldApi
+            Path: /api/{proxy+}
+            Method: ANY
+        ApiRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SchemaShieldApi
+            Path: /api
+            Method: ANY
+
+Outputs:
+  ApiUrl:
+    Description: Production API Gateway URL
+    Value: !Sub "https://${SchemaShieldApi}.execute-api.${AWS::Region}.amazonaws.com/prod/api"
+
+  FrontendUrl:
+    Description: CloudFront Distribution URL for React Frontend
+    Value: !Sub "https://${FrontendDistribution.DomainName}"
+
+  FrontendBucketName:
+    Description: S3 Bucket hosting static frontend assets
+    Value: !Ref FrontendBucket
+
+  StorageBucketName:
+    Description: S3 Storage Bucket for schemas and reports
+    Value: !Ref StorageBucket
+
+  StateMachineArn:
+    Description: Step Functions State Machine ARN
+    Value: !Ref AnalysisStateMachine
+
+  ContractsTableName:
+    Description: DynamoDB Contracts Table
+    Value: !Ref ContractsTable

@@ -1,0 +1,42 @@
+# Environments
+.env
+.env.local
+.env.*.local
+*.env
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# Build outputs
+dist/
+build/
+.aws-sam/
+out/
+.next/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Test & coverage
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+
+# CloudFormation & SAM
+packaged.yaml
+samconfig.toml
