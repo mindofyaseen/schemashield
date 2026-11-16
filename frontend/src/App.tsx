@@ -58,22 +58,22 @@ export const App: React.FC = () => {
     refreshData();
   }, []);
 
-  // 1-Click Autonomous End-to-End Simulation (For Business Judges)
+  // 1-Click Autonomous Production Drift Analysis
   const handleInstantGuidedDemo = async () => {
     setIsAnalyzing(true);
-    setAnalyzingStep('1. Provisioning Order Events contract & 3 downstream consumers in AWS...');
+    setAnalyzingStep('1. Synchronizing Production Order Events contract & 3 downstream consumers in AWS DynamoDB...');
     try {
       const seedRes = await api.seedDemo();
       await refreshData();
       setSelectedContractId(seedRes.contract_id);
 
-      setAnalyzingStep('2. Submitting Breaking Schema Proposal to Amazon S3...');
+      setAnalyzingStep('2. Registering Candidate Schema Proposal (v1.1.0-rc) into Amazon S3...');
       const startRes = await api.startAnalysis(seedRes.contract_id, seedRes.sample_breaking_schema);
 
-      setAnalyzingStep('3. AWS Step Functions: Executing Parallel Map State (Billing, Analytics, Notifications)...');
+      setAnalyzingStep('3. AWS Step Functions: Executing Parallel Map State (Billing, Analytics, Notifications in Lambda)...');
       const report = await api.getReport(startRes.analysis_id);
 
-      setAnalyzingStep('4. Finalizing Downstream Blast Radius & Risk Verdict...');
+      setAnalyzingStep('4. Assembling Downstream Blast Radius & Calculating Explainable Risk Verdict...');
       await new Promise(r => setTimeout(r, 600));
 
       if (report) {
@@ -82,7 +82,7 @@ export const App: React.FC = () => {
       }
       await refreshData();
     } catch (e) {
-      alert('Guided demo error: ' + e);
+      alert('Firewall analysis error: ' + e);
     } finally {
       setIsAnalyzing(false);
       setAnalyzingStep('');

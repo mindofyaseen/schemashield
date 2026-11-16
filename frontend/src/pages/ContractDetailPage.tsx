@@ -165,7 +165,7 @@ export const ContractDetailPage: React.FC<ContractDetailPageProps> = ({
                   className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition"
                 >
                   <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                  <span>Load Breaking Scenario</span>
+                  <span>Load Candidate Drift (v1.1.0-rc)</span>
                 </button>
                 <button
                   type="button"
@@ -173,7 +173,7 @@ export const ContractDetailPage: React.FC<ContractDetailPageProps> = ({
                   className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold transition"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Load Safe Scenario</span>
+                  <span>Load Compatible Evolution (v1.0.1)</span>
                 </button>
               </div>
             </div>

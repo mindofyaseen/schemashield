@@ -76,7 +76,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 className="flex items-center justify-center space-x-2.5 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-sm px-8 py-4 rounded-2xl shadow-xl shadow-blue-500/30 transition transform hover:-translate-y-0.5 disabled:opacity-50"
               >
                 <PlayCircle className="w-5 h-5 fill-current" />
-                <span>{isDemoLoading ? 'Running AWS Step Functions...' : '🚀 Run 1-Click Guided Demo'}</span>
+                <span>{isDemoLoading ? 'Executing Step Functions Map State...' : '🛡️ Run Production Drift Audit'}</span>
               </button>
 
               <button
@@ -192,7 +192,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 onClick={onQuickDemo}
                 className="mt-3 text-xs font-bold text-blue-600 hover:underline"
               >
-                Click here to run 1-click guided demo
+                Click here to initialize production baseline contracts
               </button>
             </div>
           ) : (
@@ -249,7 +249,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               <Clock className="w-10 h-10 mx-auto mb-2 text-slate-300" />
               <p className="text-sm font-medium">No analysis executions yet.</p>
               <p className="text-xs text-slate-400 mt-1">
-                Click "Run 1-Click Guided Demo" above to start the first live execution.
+                Click "Run Production Drift Audit" above to execute real-time cloud analysis.
               </p>
             </div>
           ) : (

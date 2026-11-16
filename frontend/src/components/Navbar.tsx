@@ -66,14 +66,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span>{apiConnected ? 'AWS Connected' : 'Local Mode'}</span>
         </div>
 
-        {/* Demo Button */}
+        {/* Production Audit Button */}
         <button
           onClick={onQuickDemo}
           disabled={isDemoLoading}
           className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition disabled:opacity-50"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-          <span>{isDemoLoading ? 'Running Demo...' : '🚀 1-Click Guided Demo'}</span>
+          <span>{isDemoLoading ? 'Analyzing Contract Drift...' : '🛡️ Run Drift Audit'}</span>
         </button>
       </div>
     </header>

@@ -228,16 +228,16 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onRunCustomAnalysis }) =
                 <button
                   type="button"
                   onClick={() => setBadText(JSON.stringify(defaultBadSchema, null, 2))}
-                  className="px-2 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs transition"
+                  className="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs transition border border-rose-200"
                 >
-                  Breaking Demo
+                  Load Candidate Drift (v1.1.0-rc)
                 </button>
                 <button
                   type="button"
                   onClick={() => setBadText(JSON.stringify(defaultSafeSchema, null, 2))}
-                  className="px-2 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-xs transition"
+                  className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-xs transition border border-emerald-200"
                 >
-                  Safe Demo
+                  Load Compatible Release (v1.0.1)
                 </button>
               </div>
             </div>

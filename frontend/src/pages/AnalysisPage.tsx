@@ -1,6 +1,7 @@
 import React from 'react';
 import { AnalysisReport } from '../types';
 import { BlastRadiusGraph } from '../components/BlastRadiusGraph';
+import { BeforeAfterDiff } from '../components/BeforeAfterDiff';
 import { SchemaDiffViewer } from '../components/SchemaDiffViewer';
 import {
   ShieldAlert,
@@ -194,6 +195,38 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({ report, onBack }) =>
       <BlastRadiusGraph
         contractName={report.contract_name}
         consumerResults={report.consumer_results}
+      />
+
+      {/* Before vs After Visual Matrix */}
+      <BeforeAfterDiff
+        baselineSchema={{
+          $schema: "https://json-schema.org/draft/2020-12/schema",
+          type: "object",
+          properties: {
+            order_id: { type: "string" },
+            customer_id: { type: "string" },
+            total: { type: "number" },
+            currency: { type: "string", enum: ["USD", "PKR"] },
+            created_at: { type: "string", format: "date-time" },
+            customer_email: { type: "string" }
+          },
+          required: ["order_id", "customer_id", "total", "currency", "created_at", "customer_email"]
+        }}
+        proposedSchema={{
+          $schema: "https://json-schema.org/draft/2020-12/schema",
+          type: "object",
+          properties: {
+            order_id: { type: "string" },
+            buyer_id: { type: "string" },
+            total: { type: "string" },
+            currency: { type: "string", enum: ["USD"] },
+            created_at: { type: "string", format: "date-time" },
+            customer_email: { type: "string" },
+            discount_code: { type: "string" }
+          },
+          required: ["order_id", "buyer_id", "total", "currency", "created_at", "customer_email"]
+        }}
+        findings={report.schema_findings}
       />
 
       {/* Side-by-side Schema Diff Component */}

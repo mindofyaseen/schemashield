@@ -31,7 +31,7 @@ export const Topology3DPage: React.FC<Topology3DPageProps> = ({ onQuickDemo, isD
           className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-lg shadow-blue-500/20 transition disabled:opacity-50"
         >
           <PlayCircle className="w-4 h-4 fill-current" />
-          <span>{isDemoLoading ? 'Running Step Functions...' : '🚀 Trigger 3D Simulation'}</span>
+          <span>{isDemoLoading ? 'Analyzing Blast Radius in AWS...' : '🛡️ Run Blast Radius Audit'}</span>
         </button>
       </div>
 
