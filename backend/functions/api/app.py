@@ -22,6 +22,18 @@ STORAGE_BUCKET = os.environ.get("STORAGE_BUCKET", "")
 STATE_MACHINE_ARN = os.environ.get("STATE_MACHINE_ARN", "")
 
 
+from decimal import Decimal
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            if obj % 1 == 0:
+                return int(obj)
+            return float(obj)
+        return super(DecimalEncoder, self).default(obj)
+
+
 def cors_headers():
     return {
         "Content-Type": "application/json",
@@ -35,7 +47,7 @@ def response(status_code: int, body: dict):
     return {
         "statusCode": status_code,
         "headers": cors_headers(),
-        "body": json.dumps(body)
+        "body": json.dumps(body, cls=DecimalEncoder)
     }
 
 
